@@ -242,10 +242,10 @@ Use environment variables or a .env file in real applications.
 This project is licensed under the MIT License
 
 🙌 Author
-Made with ❤️ by Rohan Yadav
+Made by Rohan Yadav
 
 🏷️ Tags
-#Python #WebScraping #Automation #EmailAlerts #MiniProject #BeginnerFriendly
+#Python #WebScraping #Automation #EmailAlerts #BeginnerFriendly
 
 yaml
 Copy
