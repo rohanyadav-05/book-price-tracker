@@ -1,163 +1,54 @@
-# 📚 Book Price Tracker using Python
+# 📚 Book Price Tracker – Python Mini Project
 
-A simple Python script that tracks the price of a book from a website and sends an email notification every hour.
+A simple Python script that keeps track of a book’s price from an online store and sends me an email whenever the price is updated. Useful for monitoring book prices without manually checking again and again.
 
 ---
 
-## 🚀 Features
+## 🔧 What It Does
 
-- Scrapes product price from [BooksToScrape](https://books.toscrape.com)
-- Converts price from GBP (£) to INR (₹)
-- Sends email alerts using Gmail SMTP
+- Scrapes the current price of a book from [BooksToScrape](https://books.toscrape.com)
+- Converts the price from GBP (£) to INR (₹)
+- Sends an email notification with the current price and product link
 - Runs continuously and checks the price every hour
 
 ---
 
-## 🛠️ Tech Used
+## ⚙️ Tech Stack
 
 - Python
-- `requests` and `BeautifulSoup` for web scraping
-- `smtplib` and `email.mime` for sending emails
-- `time` and `re` modules
+- `requests` & `BeautifulSoup` – for scraping
+- `smtplib` & `email.mime` – for sending emails
+- `time` & `re` – for scheduling and parsing
 
 ---
 
-## 📦 How to Run
+## 🚀 Getting Started
 
-### 1. Clone the Repository
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/rohanyadav-05/book-price-tracker.git
 cd book-price-tracker
-2. Install Required Libraries
+2. Install the required libraries
 bash
 Copy
 Edit
 pip install requests beautifulsoup4
-3. Set Your Email Credentials
-In the script (price_tracker.py), update the following variables:
+3. Set your email credentials
+Edit the price_tracker.py file and update:
 
 python
 Copy
 Edit
 from_email = "your_email@gmail.com"
-from_password = "your_app_password"
+from_password = "your_app_password"   # Use App Password for Gmail
 to_email = "recipient_email@gmail.com"
-⚠️ You must use an App Password if you're using Gmail.
-
-4. Run the Script
+4. Run the script
 bash
 Copy
 Edit
 python price_tracker.py
-🧪 Example Product Tracked
-The script tracks the price of this book:
-
-🔗 A Light in the Attic
-
-If the current price is fetched successfully, you'll receive an email like this:
-
-pgsql
-Copy
-Edit
-Current price is ₹5820.
-Your target price is ₹6000.
-Check the product here: https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html
-🔐 Security Note
-Do not expose your real credentials in a public repo.
-
-Use environment variables or a .env file in real applications.
-
-📄 License
-This project is licensed under the MIT License
-
-🙌 Author
-Made with ❤️ by Rohan Yadav
-
-🏷️ Tags
-#Python #WebScraping #Automation #EmailAlerts #MiniProject #BeginnerFriendly
-
-yaml
-Copy
-Edit
-
----
-
-✅ This is ready to paste directly into your GitHub `README.md`.  
-Want me to also generate a `LICENSE` file or `.gitignore` file? Just say the word!
-
-
-
-
-
-
-
-
-You said:
-where is code
-
-
-ChatGPT said:
-You're right! Your README should also include a code snippet section so people can quickly see how it works.
-
-Here’s the full updated README including a clean code block for the price tracker:
-
-markdown
-Copy
-Edit
-# 📚 Book Price Tracker using Python
-
-A simple Python script that tracks the price of a book from a website and sends an email notification every hour.
-
----
-
-## 🚀 Features
-
-- Scrapes product price from [BooksToScrape](https://books.toscrape.com)
-- Converts price from GBP (£) to INR (₹)
-- Sends email alerts using Gmail SMTP
-- Runs continuously and checks the price every hour
-
----
-
-## 🛠️ Tech Used
-
-- Python
-- `requests` and `BeautifulSoup` for web scraping
-- `smtplib` and `email.mime` for sending emails
-- `time` and `re` modules
-
----
-
-## 📦 How to Run
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/rohanyadav-05/book-price-tracker.git
-cd book-price-tracker
-2. Install Required Libraries
-bash
-Copy
-Edit
-pip install requests beautifulsoup4
-3. Set Your Email Credentials
-In the script (price_tracker.py), update the following variables:
-
-python
-Copy
-Edit
-from_email = "your_email@gmail.com"
-from_password = "your_app_password"
-to_email = "recipient_email@gmail.com"
-⚠️ You must use an App Password if you're using Gmail.
-
-4. Run the Script
-bash
-Copy
-Edit
-python price_tracker.py
-💻 Code Preview
+💻 Code Overview
 python
 Copy
 Edit
@@ -171,20 +62,15 @@ import re
 def get_price(url):
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(url, headers=headers)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        price_element = soup.select_one('p.price_color')
-        if price_element:
-            price_text = price_element.text.strip().replace('£', '')
-            price_number = re.findall(r'[\d.]+', price_text)
-            if price_number:
-                pound_price = float(price_number[0])
-                rupee_price = round(pound_price * 105)
-                return rupee_price
-        return None
+        res = requests.get(url, headers=headers)
+        soup = BeautifulSoup(res.text, 'html.parser')
+        price_tag = soup.select_one('p.price_color')
+        if price_tag:
+            price = float(re.findall(r'[\d.]+', price_tag.text)[0])
+            return round(price * 105)  # GBP to INR approx
     except Exception as e:
-        print(f"Error fetching price: {e}")
-        return None
+        print("Error while scraping:", e)
+    return None
 
 def send_email(subject, body, to_email, from_email, from_password):
     try:
@@ -196,63 +82,51 @@ def send_email(subject, body, to_email, from_email, from_password):
         server.login(from_email, from_password)
         server.send_message(msg)
         server.quit()
-        print("Email sent successfully!")
+        print("Email sent.")
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print("Email error:", e)
 
-def track_price(url, target_price, check_interval, to_email, from_email, from_password):
+def track_price(url, target_price, interval, to_email, from_email, from_password):
     while True:
-        current_price = get_price(url)
-        if current_price is not None:
-            print(f"Current Price: ₹{current_price}")
-            subject = "Price Tracking Update"
-            body = f"Current price is ₹{current_price}.\nYour target price is ₹{target_price}.\nProduct link: {url}"
-            send_email(subject, body, to_email, from_email, from_password)
+        price = get_price(url)
+        if price:
+            print(f"Current Price: ₹{price}")
+            message = f"Current price is ₹{price}.\nYour target price is ₹{target_price}.\nCheck the product: {url}"
+            send_email("Book Price Update", message, to_email, from_email, from_password)
         else:
-            print("Could not fetch the price, retrying later.")
-        time.sleep(check_interval)
+            print("Price not found. Retrying...")
+        time.sleep(interval)
 
+# Config
 url = "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html"
 target_price = 6000
-check_interval = 3600  # 1 hour
+check_interval = 3600  # in seconds
 
 from_email = "your_email@gmail.com"
 from_password = "your_app_password"
 to_email = "recipient_email@gmail.com"
 
-print("Starting price tracking...")
+print("📡 Tracking started...")
 track_price(url, target_price, check_interval, to_email, from_email, from_password)
-🧪 Example Product Tracked
-🔗 A Light in the Attic – BooksToScrape
-
-You’ll receive an email like this every hour:
+✅ Example Notification
+You’ll get an email like this every hour:
 
 pgsql
 Copy
 Edit
 Current price is ₹5820.
 Your target price is ₹6000.
-Check the product here: https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html
-🔐 Security Note
-Do not expose your real credentials in public repos.
+Check the product: https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html
+🔐 Security Tip
+⚠️ Never hardcode passwords in public projects.
+Use .env files or environment variables in production.
 
-Use environment variables or a .env file in real applications.
+🧑‍💻 Author
+Made with ❤️ by Rohan Yadav
+GitHub
 
 📄 License
-This project is licensed under the MIT License
+MIT License – feel free to reuse and modify.
 
-🙌 Author
-Made by Rohan Yadav
-
-🏷️ Tags
-#Python #WebScraping #Automation #EmailAlerts #BeginnerFriendly
-
-yaml
-Copy
-Edit
-
----
-
-✅ Paste this into your `README.md` and you're good to go!
-
-Let me know if you want a `.env` version of the script (more secure).
+🔖 Tags
+#python #webscraping #automation #email-alerts #book-tracker
